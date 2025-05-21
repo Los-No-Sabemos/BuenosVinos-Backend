@@ -1,11 +1,11 @@
 const router = require("express").Router();
 const Wine = require("../models/Wine.model");
 
-const { isAuthenticated } = require("../middleware/jwt.middleware");
+
 
 //Get all wines
 
-router.get("/api/wines", (req, res) => {
+router.get("/", (req, res) => {
   Wine.find({})
     .then(wines => {
       res.status(200).json(wines)
@@ -18,7 +18,7 @@ router.get("/api/wines", (req, res) => {
 
 //Post a new wine
 
-router.post("/api/wines", isAuthenticated, (req, res) => {
+router.post("/",  (req, res) => {
     
   const winesData = req.body;
     Wine.create(winesData)
@@ -33,7 +33,7 @@ router.post("/api/wines", isAuthenticated, (req, res) => {
 
 //Get a wine by id
 
-router.get("/api/wines/:wineId", (req, res) => {
+router.get("/:wineId", (req, res) => {
   Wine.findById(req.params.wineId)
     .then(wine => {
       res.status(200).json(wine)
@@ -47,7 +47,7 @@ router.get("/api/wines/:wineId", (req, res) => {
 
 //Update a wine by id
 
-router.put("/api/wines/:wineId", isAuthenticated, (req, res) => {
+router.put("/:wineId",  (req, res) => {
   Wine.findByIdAndUpdate(req.params.wineId, req.body, { new: true })
     .then(updatedWine => {
       res.status(200).json(updatedWine)
@@ -61,7 +61,7 @@ router.put("/api/wines/:wineId", isAuthenticated, (req, res) => {
 
 //Delete a wine by id
 
-router.delete("/api/wines/:wineId", isAuthenticated, (req, res) => {
+router.delete("/:wineId", (req, res) => {
   Wine.findByIdAndDelete(req.params.wineId)
     .then(() => {
       res.status(200).json({ message: "wine deleted" })
