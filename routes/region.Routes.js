@@ -31,7 +31,7 @@ router.get("/:id", (req, res) => {
     });
 });
 
-// POST /regions - Create a new region
+// POST /regions - Create a new regio
 router.post("/", (req, res) => {
   const { country, region } = req.body;
 

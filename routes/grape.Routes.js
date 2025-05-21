@@ -23,3 +23,5 @@ router.post('/',(req,res) => {
         res.status(500).json({ message: "Failed to create new grape", er: error.message})
     })
 })
+
+module.exports = router;
