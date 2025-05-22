@@ -17,6 +17,10 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+const { isAuthenticated } = require("./middleware/jwt.middleware");
+
+
 // ℹ️ This function is getting exported from the config folder. It runs most pieces of middleware
 require("./config")(app);
 
@@ -34,8 +38,11 @@ app.use("/api/grapes", grapeRoutes);
 const regionRoutes = require("./routes/region.routes");
 app.use("/api/regions", regionRoutes);
 
-const wineRoutes = require("./routes/wine.routes")
-app.use("/api/wine", wineRoutes);
+const wineRoutes = require("./routes/wine.routes");
+
+app.use("/api/wine", isAuthenticated, wineRoutes);
+
+
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);
