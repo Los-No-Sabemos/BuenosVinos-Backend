@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const GrapeSchema = new mongoose.Schema({
-    name: {type: String, required: true},
+    grapeName: {type: String, required: true},
     description: String
 });
 
