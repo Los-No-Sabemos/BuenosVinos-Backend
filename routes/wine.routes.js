@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Wine = require("../models/Wine.model");
+const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 
 
@@ -17,17 +18,19 @@ router.get("/", (req, res) => {
   });
 
 //Post a new wine
-
-router.post("/",  (req, res) => {
-    
+router.post("/", isAuthenticated, (req, res) => {
   const winesData = req.body;
-    Wine.create(winesData)
+
+  // Inject userId from JWT payload
+  winesData.userId = req.payload._id;
+
+  Wine.create(winesData)
     .then((createdWine) => {
-        res.status(200).json(createdWine)
+      res.status(200).json(createdWine);
     })
     .catch((error) => {
       console.error('error creating wine', error);
-        res.status(500).json({ message: "error creating wine"})
+      res.status(500).json({ message: "error creating wine" });
     });
 });
 
