@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const RegionSchema = new mongoose.Schema({
     
-    regionName: {type: String, required: true},
+    region: {type: String, required: true},
     country: {type: String, required: true},
    
 })

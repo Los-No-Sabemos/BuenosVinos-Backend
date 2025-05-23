@@ -36,7 +36,7 @@ app.use("/api/grapes", grapeRoutes);
 
 
 const regionRoutes = require("./routes/region.routes");
-app.use("/regions", regionRoutes);
+app.use("/api/regions", regionRoutes);
 
 const wineRoutes = require("./routes/wine.routes");
 

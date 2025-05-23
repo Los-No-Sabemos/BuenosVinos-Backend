@@ -13,9 +13,9 @@ router.get('/', (req,res) => {
 })
 
 router.post('/',(req,res) => {
-    const { grapeName, description } = req.body
+    const { name, description } = req.body
 
-    Grape.create({grapeName, description})
+    Grape.create({name, description})
     .then((newGrape) => {
         res.status(201).json(newGrape);
     })
