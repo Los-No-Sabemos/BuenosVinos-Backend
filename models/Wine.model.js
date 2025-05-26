@@ -19,6 +19,7 @@ const wineSchema = new Schema(
     },
     notes: { type: String, required: true,
     },
+     public: { type: Boolean, default: false },
   },
   {
     timestamps: true,

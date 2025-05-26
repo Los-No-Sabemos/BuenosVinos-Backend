@@ -1,5 +1,6 @@
 const router = require("express").Router();
 const Wine = require("../models/Wine.model");
+const SavedWine = require("../models/SavedWine.model");
 const { isAuthenticated } = require("../middleware/jwt.middleware");
 
 // Get all wines
@@ -33,6 +34,34 @@ router.get("/:wineId", (req, res) => {
       console.error('Error retrieving wine by ID:', error);
       res.status(500).json({ error: 'Error retrieving wine by ID' });
     });
+});
+
+router.post("/:wineId/save", isAuthenticated, async (req, res) => {
+  const userId = req.payload._id;
+  const { wineId } = req.params;
+
+  try {
+    const wineToCopy = await Wine.findById(wineId);
+
+    if (!wineToCopy) {
+      return res.status(404).json({ message: "Wine not found" });
+    }
+
+    const newWine = await Wine.create({
+      name: wineToCopy.name,
+      regionId: wineToCopy.regionId,
+      grapeIds: wineToCopy.grapeIds,
+      year: wineToCopy.year,
+      rating: wineToCopy.rating,
+      notes: wineToCopy.notes,
+      userId: userId,
+    });
+
+    res.status(201).json(newWine);
+  } catch (error) {
+    console.error("Error saving wine to private cellar:", error);
+    res.status(500).json({ message: "Failed to save wine to cellar" });
+  }
 });
 
 // Update a wine (only if user is creator)
@@ -75,6 +104,52 @@ router.delete("/:wineId", isAuthenticated, (req, res) => {
       console.error('Error deleting wine by ID:', error);
       res.status(500).json({ error: 'Error deleting wine by ID' });
     });
+});
+
+router.get("/public", (req, res) => {
+  Wine.find({ public: true })
+    .populate("regionId grapeIds")
+    .then(wines => res.status(200).json(wines))
+    .catch(error => {
+      console.error("Error retrieving public wines:", error);
+      res.status(500).json({ error: "Error retrieving public wines" });
+    });
+});
+
+
+router.post("/save/:wineId", isAuthenticated, async (req, res) => {
+  const userId = req.payload._id;
+  const wineId = req.params.wineId;
+
+  try {
+    const exists = await SavedWine.findOne({ user: userId, wine: wineId });
+    if (exists) return res.status(400).json({ message: "Wine already saved" });
+
+    const savedWine = await SavedWine.create({ user: userId, wine: wineId });
+    res.status(201).json(savedWine);
+  } catch (error) {
+    console.error("Error saving wine to cellar:", error);
+    res.status(500).json({ error: "Error saving wine to cellar" });
+  }
+});
+
+
+router.get("/my-cellar", isAuthenticated, async (req, res) => {
+  const userId = req.payload._id;
+
+  try {
+    const savedWines = await SavedWine.find({ user: userId })
+      .populate({
+        path: "wine",
+        populate: ["regionId", "grapeIds"]
+      });
+
+    const cellarWines = savedWines.map(entry => entry.wine);
+    res.status(200).json(cellarWines);
+  } catch (error) {
+    console.error("Error retrieving user's cellar:", error);
+    res.status(500).json({ error: "Error retrieving user's cellar" });
+  }
 });
 
 module.exports = router;
