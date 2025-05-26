@@ -40,7 +40,7 @@ app.use("/api/regions", regionRoutes);
 
 const wineRoutes = require("./routes/wine.routes");
 
-app.use("/api/wine", isAuthenticated, wineRoutes);
+app.use("/api/wine", wineRoutes);
 
 
 
