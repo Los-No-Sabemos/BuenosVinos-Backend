@@ -31,11 +31,11 @@ router.get("/:id", (req, res) => {
     });
 });
 
-// POST /regions - Create a new regio
+// POST /regions - Create a new region
 router.post("/", (req, res) => {
-  const { country, region } = req.body;
+  const { region, country} = req.body;
 
-  Region.create({ country, region })
+  Region.create({ region, country})
     .then((newRegion) => {
       res.status(201).json(newRegion);
     })
