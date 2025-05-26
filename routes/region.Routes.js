@@ -35,7 +35,7 @@ router.get("/:id", (req, res) => {
 router.post("/", (req, res) => {
   const { region, country} = req.body;
 
-  Region.create({ region, country})
+  Region.create({ region, country, description, climate, signatureWine, history, bestTimeToVisit, wineFestivals, image, map })
     .then((newRegion) => {
       res.status(201).json(newRegion);
     })
