@@ -29,13 +29,16 @@ router.get("/my-cellar", isAuthenticated, async (req, res) => {
   const userId = req.payload._id;
 
   try {
-    const savedWines = await SavedWine.find({ user: userId })
-      .populate({
-        path: "wine",
-        populate: ["regionId", "grapeIds"]
-      });
+    const savedWines = await SavedWine.find({ user: userId }).populate({
+      path: "wine",
+      populate: ["regionId", "grapeIds"],
+    });
 
-    const cellarWines = savedWines.map(entry => entry.wine);
+    
+    const cellarWines = savedWines
+      .map(entry => entry.wine)
+      .filter(wine => wine !== null && wine.regionId !== null); 
+
     res.status(200).json(cellarWines);
   } catch (error) {
     console.error("Error retrieving user's cellar:", error);
@@ -65,12 +68,12 @@ router.post("/", isAuthenticated, (req, res) => {
   const winesData = req.body;
   winesData.userId = req.payload._id;
 
-  Wine.create(winesData)
-    .then(createdWine => res.status(200).json(createdWine))
-    .catch(error => {
-      console.error('Error creating wine:', error);
-      res.status(500).json({ message: "Error creating wine" });
-    });
+ Wine.create(winesData)
+  .then(createdWine => res.status(201).json(createdWine))
+  .catch(error => {
+    console.error('Error creating wine:', error);
+    res.status(500).json({ message: "Error creating wine" });
+  });
 });
 
 // Get a wine by ID
@@ -110,19 +113,48 @@ router.delete("/:wineId", isAuthenticated, (req, res) => {
 
   Wine.findById(req.params.wineId)
     .then(wine => {
-      if (!wine) return res.status(404).json({ message: "Wine not found" });
+      if (!wine) {
+        res.status(404).json({ message: "Wine not found" });
+        return null;
+      }
 
       if (wine.userId.toString() !== userId) {
-        return res.status(403).json({ message: "You are not authorized to delete this wine" });
+        res.status(403).json({ message: "You are not authorized to delete this wine" });
+        return null;
       }
 
       return Wine.findByIdAndDelete(req.params.wineId);
     })
-    .then(() => res.status(200).json({ message: "Wine deleted successfully" }))
+    .then(result => {
+      if (!result) return; 
+      res.status(200).json({ message: "Wine deleted successfully" });
+    })
     .catch(error => {
-      console.error('Error deleting wine by ID:', error);
-      res.status(500).json({ error: 'Error deleting wine by ID' });
+      console.error("Error deleting wine by ID:", error);
+      res.status(500).json({ error: "Error deleting wine by ID" });
     });
+});
+
+router.patch("/:wineId/visibility", isAuthenticated, async (req, res) => {
+  const userId = req.payload._id;
+  const { public: isPublic } = req.body;
+
+  try {
+    const wine = await Wine.findById(req.params.wineId);
+    if (!wine) return res.status(404).json({ message: "Wine not found" });
+
+    if (wine.userId.toString() !== userId) {
+      return res.status(403).json({ message: "Not authorized to update visibility" });
+    }
+
+    wine.public = isPublic;
+    const updatedWine = await wine.save();
+
+    res.status(200).json(updatedWine);
+  } catch (error) {
+    console.error("Error updating wine visibility:", error);
+    res.status(500).json({ error: "Error updating wine visibility" });
+  }
 });
 
 module.exports = router;
