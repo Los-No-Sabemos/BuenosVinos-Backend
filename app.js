@@ -31,11 +31,11 @@ app.use("/api", indexRoutes);
 const authRoutes = require("./routes/auth.routes");
 app.use("/auth", authRoutes);
 
-const grapeRoutes = require("./routes/grape.routes");
+const grapeRoutes = require("./routes/grape.Routes");
 app.use("/api/grapes", grapeRoutes);
 
 
-const regionRoutes = require("./routes/region.routes");
+const regionRoutes = require("./routes/region.Routes");
 app.use("/api/regions", regionRoutes);
 
 const wineRoutes = require("./routes/wine.routes");
