@@ -31,7 +31,7 @@ app.use("/api", indexRoutes);
 const authRoutes = require("./routes/auth.routes");
 app.use("/auth", authRoutes);
 
-const grapeRoutes = require("./routes/grape.sroutes");
+const grapeRoutes = require("./routes/grape.routes");
 app.use("/api/grapes", grapeRoutes);
 
 
