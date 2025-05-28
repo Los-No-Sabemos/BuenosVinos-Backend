@@ -13,9 +13,9 @@ router.get('/', (req,res) => {
 })
 
 router.post('/',(req,res) => {
-    const { name, description } = req.body
+    const { name, description, acidity, aroma, color, flavorProfile, foodPairing, origin, popularWines, yearFirstCultivated, imageGrape, imageWineGlass, servingTemperature  } = req.body
 
-    Grape.create({name, description})
+    Grape.create({name, description, acidity, aroma, color, flavorProfile, foodPairing, origin, popularWines, yearFirstCultivated, imageGrape, imageWineGlass, servingTemperature})
     .then((newGrape) => {
         res.status(201).json(newGrape);
     })
