@@ -31,15 +31,14 @@ app.use("/api", indexRoutes);
 const authRoutes = require("./routes/auth.routes");
 app.use("/auth", authRoutes);
 
-const grapeRoutes = require("./routes/grape.Routes");
+const grapeRoutes = require("./routes/grape.routes");
 app.use("/api/grapes", grapeRoutes);
 
 
-const regionRoutes = require("./routes/region.sroutes");
+const regionRoutes = require("./routes/region.routes");
 app.use("/api/regions", regionRoutes);
 
 const wineRoutes = require("./routes/wine.routes");
-
 app.use("/api/wine", wineRoutes);
 
 
