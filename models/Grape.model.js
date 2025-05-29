@@ -10,7 +10,7 @@ const GrapeSchema = new mongoose.Schema({
     flavorProfile: {type: String, required: true},
     aroma:  {type: String, required: true},
     foodPairing: {type: String, required: true},
-    popularWines: { type: mongoose.Schema.Types.ObjectId, ref: 'Wine', required: true },
+    popularWines: { type: String, required: true },
     servingTemperature: {type: String, required: true},
     imageGrape: {type: String, required: true},
     imageWineGlass: {type: String, required: true},
