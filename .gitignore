@@ -22,5 +22,4 @@ ehthumbs.db
 # VS Code
 .vscode/*
 
-# Ignore uploads folder
-/uploads/
+
