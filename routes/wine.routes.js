@@ -84,13 +84,18 @@ router.post("/", isAuthenticated, upload.single("image"), async (req, res) => {
   }
 });
 
-router.get("/:wineId", (req, res) => {
-  Wine.findById(req.params.wineId)
-    .then(wine => res.status(200).json(wine))
-    .catch(error => {
-      console.error('Error retrieving wine by ID:', error);
-      res.status(500).json({ error: 'Error retrieving wine by ID' });
-    });
+router.get("/:wineId", async (req, res) => {
+  try {
+    const wine = await Wine.findById(req.params.wineId);
+    if (!wine) return res.status(404).json({ message: "Wine not found" });
+
+    const wineObj = wine.toObject();
+    wineObj.userId = wine.userId.toString(); 
+    res.status(200).json(wineObj);
+  } catch (error) {
+    console.error('Error retrieving wine by ID:', error);
+    res.status(500).json({ error: 'Error retrieving wine by ID' });
+  }
 });
 
 router.put("/:wineId", isAuthenticated, upload.single("image"), async (req, res) => {
