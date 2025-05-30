@@ -9,7 +9,7 @@ require("./db");
 // https://www.npmjs.com/package/express
 const express = require("express");
 const cors = require('cors');
-
+const path = require('path');
 const app = express();
 
 app.use(cors({
@@ -17,6 +17,8 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 const { isAuthenticated } = require("./middleware/jwt.middleware");
 
