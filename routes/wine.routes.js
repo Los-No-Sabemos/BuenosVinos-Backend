@@ -1,36 +1,30 @@
 const router = require("express").Router();
-const path = require("path");
-const fs = require("fs");
 const Wine = require("../models/Wine.model");
 const SavedWine = require("../models/SavedWine.model");
 const { isAuthenticated } = require("../middleware/jwt.middleware");
-const upload = require("../config/multer.config");
 
-// Serve uploaded images statically
-router.use("/uploads", require("express").static(path.join(__dirname, "../uploads")));
-
-
+// Get all wines
 router.get("/", (req, res) => {
   Wine.find({})
-    .then(wines => res.status(200).json(wines))
-    .catch(error => {
-      console.error('Error retrieving wines:', error);
-      res.status(500).json({ error: 'Error retrieving wines' });
+    .then((wines) => res.status(200).json(wines))
+    .catch((error) => {
+      console.error("Error retrieving wines:", error);
+      res.status(500).json({ error: "Error retrieving wines" });
     });
 });
 
-
+// Get all public wines
 router.get("/public", (req, res) => {
   Wine.find({ public: true })
     .populate("regionId grapeIds")
-    .then(wines => res.status(200).json(wines))
-    .catch(error => {
+    .then((wines) => res.status(200).json(wines))
+    .catch((error) => {
       console.error("Error retrieving public wines:", error);
       res.status(500).json({ error: "Error retrieving public wines" });
     });
 });
 
-
+// Get user's saved wines (cellar)
 router.get("/my-cellar", isAuthenticated, async (req, res) => {
   const userId = req.payload._id;
 
@@ -41,8 +35,8 @@ router.get("/my-cellar", isAuthenticated, async (req, res) => {
     });
 
     const cellarWines = savedWines
-      .map(entry => entry.wine)
-      .filter(wine => wine !== null && wine.regionId !== null);
+      .map((entry) => entry.wine)
+      .filter((wine) => wine !== null && wine.regionId !== null);
 
     res.status(200).json(cellarWines);
   } catch (error) {
@@ -51,6 +45,7 @@ router.get("/my-cellar", isAuthenticated, async (req, res) => {
   }
 });
 
+// Save a wine to user's cellar
 router.post("/save/:wineId", isAuthenticated, async (req, res) => {
   const userId = req.payload._id;
   const wineId = req.params.wineId;
@@ -67,14 +62,13 @@ router.post("/save/:wineId", isAuthenticated, async (req, res) => {
   }
 });
 
-router.post("/", isAuthenticated, upload.single("image"), async (req, res) => {
+// Create a new wine (expects image URL in req.body.image)
+router.post("/", isAuthenticated, async (req, res) => {
   try {
     const winesData = req.body;
     winesData.userId = req.payload._id;
 
-    if (req.file) {
-      winesData.image = `/uploads/${req.file.filename}`;
-    }
+    // No file upload handling - image is expected as URL string
 
     const createdWine = await Wine.create(winesData);
     res.status(201).json(createdWine);
@@ -84,21 +78,23 @@ router.post("/", isAuthenticated, upload.single("image"), async (req, res) => {
   }
 });
 
+// Get wine by ID
 router.get("/:wineId", async (req, res) => {
   try {
     const wine = await Wine.findById(req.params.wineId);
     if (!wine) return res.status(404).json({ message: "Wine not found" });
 
     const wineObj = wine.toObject();
-    wineObj.userId = wine.userId.toString(); 
+    wineObj.userId = wine.userId.toString();
     res.status(200).json(wineObj);
   } catch (error) {
-    console.error('Error retrieving wine by ID:', error);
-    res.status(500).json({ error: 'Error retrieving wine by ID' });
+    console.error("Error retrieving wine by ID:", error);
+    res.status(500).json({ error: "Error retrieving wine by ID" });
   }
 });
 
-router.put("/:wineId", isAuthenticated, upload.single("image"), async (req, res) => {
+// Update a wine (expects image URL in req.body.image)
+router.put("/:wineId", isAuthenticated, async (req, res) => {
   const userId = req.payload._id;
   const wineId = req.params.wineId;
 
@@ -110,14 +106,7 @@ router.put("/:wineId", isAuthenticated, upload.single("image"), async (req, res)
       return res.status(403).json({ message: "You are not authorized to update this wine" });
     }
 
-    const updatedData = req.body;
-
-    if (req.file) {
-      if (wine.image && fs.existsSync(path.join(__dirname, "../", wine.image))) {
-        fs.unlinkSync(path.join(__dirname, "../", wine.image));
-      }
-      updatedData.image = `/uploads/${req.file.filename}`;
-    }
+    const updatedData = req.body; // expects image URL as string if updating image
 
     const updatedWine = await Wine.findByIdAndUpdate(wineId, updatedData, { new: true });
     res.status(200).json(updatedWine);
@@ -127,6 +116,7 @@ router.put("/:wineId", isAuthenticated, upload.single("image"), async (req, res)
   }
 });
 
+// Delete a wine
 router.delete("/:wineId", isAuthenticated, async (req, res) => {
   const userId = req.payload._id;
   const wineId = req.params.wineId;
@@ -139,9 +129,7 @@ router.delete("/:wineId", isAuthenticated, async (req, res) => {
       return res.status(403).json({ message: "You are not authorized to delete this wine" });
     }
 
-    if (wine.image && fs.existsSync(path.join(__dirname, "../", wine.image))) {
-      fs.unlinkSync(path.join(__dirname, "../", wine.image));
-    }
+    // No image file deletion since images are URLs
 
     await Wine.findByIdAndDelete(wineId);
     res.status(200).json({ message: "Wine deleted successfully" });
@@ -151,6 +139,7 @@ router.delete("/:wineId", isAuthenticated, async (req, res) => {
   }
 });
 
+// Update wine visibility
 router.patch("/:wineId/visibility", isAuthenticated, async (req, res) => {
   const userId = req.payload._id;
   const { public: isPublic } = req.body;
