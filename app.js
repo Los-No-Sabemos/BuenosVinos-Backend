@@ -12,15 +12,10 @@ const cors = require('cors');
 const path = require('path');
 const app = express();
 
-app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:5173', 'https://buenosvinos.netlify.app'],
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-const { isAuthenticated } = require("./middleware/jwt.middleware");
 
 
 // ℹ️ This function is getting exported from the config folder. It runs most pieces of middleware
