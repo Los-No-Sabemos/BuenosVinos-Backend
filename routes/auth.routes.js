@@ -2,10 +2,10 @@ const express = require("express");
 const router = express.Router();
 
 
-// ℹ️ Handles password encryption
+//  Handles password encryption
 const bcrypt = require("bcrypt");
 
-// ℹ️ Handles password encryption
+//  Handles password encryption
 const jwt = require("jsonwebtoken");
 
 // Require the User model in order to interact with the database
